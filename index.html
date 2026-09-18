@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TeamBoard - CodeAlpha Project Management Tool</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ================= AUTH SCREEN ================= -->
+<section id="auth-screen" class="auth-screen">
+  <div class="auth-card">
+    <div class="brand"><span class="logo">TB</span> TeamBoard</div>
+    <p class="brand-sub">Plan projects, assign tasks, talk to your team.</p>
+
+    <div class="tabs">
+      <button class="tab active" data-auth-tab="login">Log in</button>
+      <button class="tab" data-auth-tab="register">Sign up</button>
+    </div>
+
+    <!-- login -->
+    <form id="login-form" class="auth-form">
+      <label>Email<input type="email" name="email" placeholder="you@example.com" required></label>
+      <label>Password<input type="password" name="password" placeholder="••••••" required></label>
+      <button class="btn primary full" type="submit">Log in</button>
+    </form>
+
+    <!-- register -->
+    <form id="register-form" class="auth-form hidden">
+      <label>Full name<input type="text" name="name" placeholder="Hassnain Bilal" required></label>
+      <label>Email<input type="email" name="email" placeholder="you@example.com" required></label>
+      <label>Password<input type="password" name="password" placeholder="min. 6 characters" required></label>
+      <button class="btn primary full" type="submit">Create account</button>
+    </form>
+
+    <p id="auth-error" class="error hidden"></p>
+  </div>
+</section>
+
+<!-- ================= APP ================= -->
+<div id="app" class="hidden">
+
+  <header class="topbar">
+    <div class="brand small" id="home-btn"><span class="logo">TB</span> TeamBoard</div>
+
+    <div class="topbar-right">
+      <!-- notifications -->
+      <div class="bell-wrap">
+        <button id="bell-btn" class="icon-btn" title="Notifications">
+          &#128276;<span id="bell-count" class="badge hidden">0</span>
+        </button>
+        <div id="bell-panel" class="panel hidden">
+          <div class="panel-head">
+            <strong>Notifications</strong>
+            <button id="read-all-btn" class="link">Mark all read</button>
+          </div>
+          <div id="notif-list" class="notif-list"></div>
+        </div>
+      </div>
+
+      <div class="user-chip">
+        <span id="user-avatar" class="avatar">?</span>
+        <span id="user-name"></span>
+      </div>
+      <button id="logout-btn" class="btn ghost">Log out</button>
+    </div>
+  </header>
+
+  <!-- --------- DASHBOARD: list of projects --------- -->
+  <main id="dashboard" class="page">
+    <div class="page-head">
+      <h1>My Projects</h1>
+      <button id="new-project-btn" class="btn primary">+ New project</button>
+    </div>
+    <div id="project-grid" class="project-grid"></div>
+    <p id="no-projects" class="empty hidden">No projects yet. Create your first group project.</p>
+  </main>
+
+  <!-- --------- BOARD: one project --------- -->
+  <main id="board-page" class="page hidden">
+    <div class="page-head">
+      <div>
+        <button id="back-btn" class="link">&larr; All projects</button>
+        <h1 id="board-title">Project</h1>
+        <p id="board-desc" class="muted"></p>
+      </div>
+      <div class="board-actions">
+        <div id="member-avatars" class="member-avatars"></div>
+        <button id="add-member-btn" class="btn ghost">+ Member</button>
+        <button id="add-task-btn" class="btn primary">+ Task</button>
+      </div>
+    </div>
+
+    <div id="board" class="board"></div>
+  </main>
+</div>
+
+<!-- ================= MODALS ================= -->
+
+<!-- new project -->
+<div id="project-modal" class="modal hidden">
+  <div class="modal-box">
+    <h2>Create a group project</h2>
+    <form id="project-form">
+      <label>Project name<input name="name" required placeholder="Final Year Project"></label>
+      <label>Description<textarea name="description" rows="3" placeholder="What is this project about?"></textarea></label>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" data-close>Cancel</button>
+        <button type="submit" class="btn primary">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- new / edit task -->
+<div id="task-modal" class="modal hidden">
+  <div class="modal-box">
+    <h2 id="task-modal-title">New task</h2>
+    <form id="task-form">
+      <input type="hidden" name="id">
+      <label>Title<input name="title" required placeholder="Design the login page"></label>
+      <label>Description<textarea name="description" rows="3" placeholder="Details of the work"></textarea></label>
+      <div class="row">
+        <label>Assign to
+          <select name="assigneeId" id="assignee-select"><option value="">Unassigned</option></select>
+        </label>
+        <label>Column
+          <select name="columnId" id="column-select"></select>
+        </label>
+      </div>
+      <div class="row">
+        <label>Priority
+          <select name="priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+        <label>Due date<input type="date" name="dueDate"></label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" data-close>Cancel</button>
+        <button type="submit" class="btn primary">Save task</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- add member -->
+<div id="member-modal" class="modal hidden">
+  <div class="modal-box">
+    <h2>Add a team member</h2>
+    <form id="member-form">
+      <label>Their registered email<input name="email" type="email" required placeholder="teammate@example.com"></label>
+      <p class="hint">The person must already have a TeamBoard account.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" data-close>Cancel</button>
+        <button type="submit" class="btn primary">Add</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- task details + comments (the "communicate within tasks" part) -->
+<div id="detail-modal" class="modal hidden">
+  <div class="modal-box wide">
+    <div class="detail-head">
+      <div>
+        <h2 id="detail-title">Task</h2>
+        <p id="detail-meta" class="muted"></p>
+      </div>
+      <button class="icon-btn" data-close>&times;</button>
+    </div>
+
+    <p id="detail-desc" class="detail-desc"></p>
+
+    <div class="detail-buttons">
+      <button id="detail-edit" class="btn ghost">Edit</button>
+      <button id="detail-delete" class="btn danger">Delete</button>
+    </div>
+
+    <h3 class="section-title">Discussion</h3>
+    <div id="comment-list" class="comment-list"></div>
+    <p id="typing-hint" class="typing hidden"></p>
+
+    <form id="comment-form" class="comment-form">
+      <input name="text" placeholder="Write a message to your team..." autocomplete="off" required>
+      <button class="btn primary" type="submit">Send</button>
+    </form>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
